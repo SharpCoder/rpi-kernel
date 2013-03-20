@@ -37,14 +37,14 @@ namespace RaspberryLib {
 		// locations in memory, otherwise your attempts
 		// at, for example, acquiring a framebuffer pointer
 		// will be INVALID.
-		static uint32 PHYSICAL_TO_BUS( uint32 p ) {
+		volatile static uint32 PHYSICAL_TO_BUS( uint32 p ) {
 			return (uint32)(p + ARM_BUS_LOCATION );
 		}
 		
 		// And in those special cases, the RPI
 		// will return a value that ALSO needs
 		// to be 're-mapped'.
-		static uint32 BUS_TO_PHYSICAL( uint32 p ) {
+		volatile static uint32 BUS_TO_PHYSICAL( uint32 p ) {
 			if ( p > ARM_BUS_LOCATION ) 
 				return (uint32)(p - ARM_BUS_LOCATION );
 			return (uint32)p;
@@ -52,7 +52,7 @@ namespace RaspberryLib {
 		
 		// Memory barrier is an ASSEMBLY function I have
 		// which syncronizes memory, I guess.
-		static void Barrier( void ) {
+		volatile static void Barrier( void ) {
 			asm volatile( "mcr p15, 0, ip, c7, c5, 0" );
 			asm volatile( "mcr p15, 0, ip, c7, c5, 6" );
 			asm volatile( "mcr p15, 0, ip, c7, c10, 4" );
@@ -60,20 +60,20 @@ namespace RaspberryLib {
 		}
 	};
 	
-	typedef struct {
+	struct GPU {
 		uint32 framePtr;
 		uint32 pitch;
 		uint32 width;
 		uint32 height;
 		bool valid;
-	}  GPU;
+	};
 
 	// Assembly code based methods (or they used to be).
 	// This is for hard core integral stuff.
-	static uint32 GET32( uint32 addr );
-	static void PUT32( uint32 addr, uint32 value );
-	static char GET4( uint32 addr );
-	static void PUT4( uint32 addr, char value );
+	volatile uint32 GET32( uint32 addr );
+	volatile void PUT32( uint32 addr, uint32 value );
+	volatile char GET4( uint32 addr );
+	volatile void PUT4( uint32 addr, char value );
 	
 	// Common RPI interaction methods.
 	uint32 CheckCounter( void );
@@ -83,8 +83,8 @@ namespace RaspberryLib {
 	void PiFault( const char* msg );
 	
 	// Common Advanced RPI methods.
-	static uint32 MailboxCheck( char channel );
-	static void MailboxWrite( char channel, uint32 value );
+	uint32 MailboxCheck( char channel );
+	void MailboxWrite( char channel, uint32 value );
 	
 	// Extreme RPI methods!
 	GPU AcquireFrameBuffer( uint32 xres, uint32 yres );

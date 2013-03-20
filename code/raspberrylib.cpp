@@ -14,28 +14,28 @@
 
 namespace RaspberryLib {
 	
-	static uint32 GET32( uint32 addr ) {
+	volatile uint32 GET32( uint32 addr ) {
 		// Create a pointer to our location in memory.
 		volatile uint32* ptr = (volatile uint32*)( addr );
 		// Return the value.
 		return (uint32)(*ptr);
 	}
 	
-	static void PUT32( uint32 addr, uint32 value ) {
+	volatile void PUT32( uint32 addr, uint32 value ) {
 		// Create a pointer to our location in memory.
 		volatile uint32* ptr = (volatile uint32*)( addr );
 		// Set the value.
 		*ptr = value;
 	}
 	
-	static char GET4( uint32 addr ) {
+	volatile char GET4( uint32 addr ) {
 		// Create a pointer to our location in memory.
 		volatile char* ptr = (volatile char*)( addr );
 		// Return the value.
 		return (char)(*ptr);
 	}
 	
-	static void PUT4( uint32 addr, char value ) {
+	volatile void PUT4( uint32 addr, char value ) {
 		// Create a pointer to our location in memory.
 		volatile char* ptr = (volatile char*)( addr );
 		// Set the value.
@@ -104,7 +104,7 @@ namespace RaspberryLib {
 		return;		
 	}
 	
-	static void MailboxWrite( char channel, uint32 data ) {
+	void MailboxWrite( char channel, uint32 data ) {
 		// Worf: 	We're ready to fire captain!
 		// Picard: 	On my mark...
 		while ( GET32( ARM_MAIL_BASE + ARM_MAIL_STATUS ) & MAIL_FULL ) {
@@ -126,7 +126,7 @@ namespace RaspberryLib {
 		Memory::Barrier();
 	}
 	
-	static uint32 MailboxCheck( char channel ) {
+	uint32 MailboxCheck( char channel ) {
 	
 		// Define some variables.
 		uint32 data = 0, count = 0;
@@ -167,7 +167,7 @@ namespace RaspberryLib {
 	GPU AcquireFrameBuffer( uint32 xres, uint32 yres ) {
 		
 		// Create a new blank GPU structure.
-		GPU gpu;
+		static GPU gpu;
 		
 		// Initialize the default values.
 		gpu.valid = false;
@@ -181,15 +181,20 @@ namespace RaspberryLib {
 		// [4] = Pitch (set by GPU), [5] = Depth
 		// [6] = X Offset, [7] = Y Offset,
 		// [8] = Frame Buffer Pointer, [9] = Frame Buffer Size.
-		static uint32 request[10];
-		request[0] = (uint32)xres; request[1] = (uint32)yres;
-		request[2] = (uint32)xres; request[3] = (uint32)yres;
-		request[4] = 0; request[5] = 24;
-		request[6] = 0; request[7] = 0;
-		request[8] = 0;	request[9] = 0;
+		volatile static uint32 request[10];
+		request[0] = (uint32)xres; 
+		request[1] = (uint32)yres;
+		request[2] = (uint32)xres; 
+		request[3] = (uint32)yres;
+		request[4] = 0; 
+		request[5] = 24;
+		request[6] = 0; 
+		request[7] = 0;
+		request[8] = 0;	
+		request[9] = 0;
 		
 		// Create a pointer to this thing.
-		volatile uint32* ptr = &(request[0]);
+		volatile static uint32* ptr = &(request[0]);
 		
 		// Snag the pointer value in uint32 form.
 		uint32 requestAddress = Memory::PHYSICAL_TO_BUS( (uint32)ptr );
@@ -203,13 +208,8 @@ namespace RaspberryLib {
 			response = MailboxCheck( 1 );
 		} while ( response != 0 ) ;
 		
-		Blink(2, 200);
-		Wait( 500 );
-	
-		
 		// Check the meaning of the response.
 		if ( request[8] == 0 ) {
-			Blink(2,1000);
 			PiFault( "Error! The framebuffer returned is invalid. Aborting framebuffer acquisition" );
 			return gpu;
 		}

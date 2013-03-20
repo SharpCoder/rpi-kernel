@@ -8,6 +8,7 @@
 // LICENSE:		Provided "AS IS". USE AT YOUR OWN RISK.
 // *******************************
 #include "raspberrylib.cpp"
+#include "drawing.cpp"
 
 using namespace RaspberryLib;
 
@@ -20,12 +21,17 @@ extern "C" void kmain( void ) {
 	GPU gpu = AcquireFrameBuffer( 1024, 768 );
 	
 	// Verify the gpu was successful.
-	if ( gpu.valid ) {	
-		// To indicate success, turn the
-		// green LED light on.
-		SetGPIO( 16, 1 );
-	}
+	if ( !gpu.valid ) return;
 	
+	// Create a canvas.
+	Canvas c(&gpu);
+	
+	// Clear the screen.
+	// c.Clear( 0xFF0000 );
+	
+	// green LED light on.
+	SetGPIO( 16, 1 );
+		
 	// Exit
 	return;
 	
