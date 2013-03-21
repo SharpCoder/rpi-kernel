@@ -18,16 +18,16 @@ using namespace RaspberryLib;
 extern "C" void kmain( void ) {
 	
 	// Testbed
-	GPU gpu = AcquireFrameBuffer( 1024, 768 );
+	GPU* gpu = AcquireFrameBuffer( 1024, 768 );
 	
 	// Verify the gpu was successful.
-	if ( !gpu.valid ) return;
-	
+	if ( !gpu->valid ) return;
+
 	// Create a canvas.
-	Canvas c(&gpu);
+	Canvas c(gpu);
 	
 	// Clear the screen.
-	// c.Clear( 0xFF0000 );
+	c.Clear( 0x00FF00 );
 	
 	// green LED light on.
 	SetGPIO( 16, 1 );

@@ -26,6 +26,8 @@
 #define		ARM_MAIL_WRITE			0x20
 #define		ARM_MAIL_STATUS			0x18
 
+#define 	KERNEL_FB_LOC			(volatile unsigned int) 0x00002000
+
 // Define the headers within this library.
 namespace RaspberryLib {
 	
@@ -61,10 +63,16 @@ namespace RaspberryLib {
 	};
 	
 	struct GPU {
-		uint32 framePtr;
+		uint32 screen_width;
+		uint32 screen_height;
+		uint32 virtual_width;
+		uint32 virtual_height;
 		uint32 pitch;
-		uint32 width;
-		uint32 height;
+		uint32 depth;
+		uint32 xoffset;
+		uint32 yoffset;
+		uint32 framePtr;
+		uint32 bufferSize;
 		bool valid;
 	};
 
@@ -87,7 +95,7 @@ namespace RaspberryLib {
 	void MailboxWrite( char channel, uint32 value );
 	
 	// Extreme RPI methods!
-	GPU AcquireFrameBuffer( uint32 xres, uint32 yres );
+	GPU* AcquireFrameBuffer( uint32 xres, uint32 yres );
 }
 
 #endif

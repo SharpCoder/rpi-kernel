@@ -164,16 +164,7 @@ namespace RaspberryLib {
 		return (data & 0xFFFFFFF0);
 	}
 	
-	GPU AcquireFrameBuffer( uint32 xres, uint32 yres ) {
-		
-		// Create a new blank GPU structure.
-		static GPU gpu;
-		
-		// Initialize the default values.
-		gpu.valid = false;
-		gpu.width = xres;
-		gpu.height = yres;
-		
+	GPU* AcquireFrameBuffer( uint32 xres, uint32 yres ) {
 		// Create a structure in memory to hold
 		// our request to the GPU.
 		// [0] = Monitor Width, [1] = Monitor Height
@@ -181,53 +172,54 @@ namespace RaspberryLib {
 		// [4] = Pitch (set by GPU), [5] = Depth
 		// [6] = X Offset, [7] = Y Offset,
 		// [8] = Frame Buffer Pointer, [9] = Frame Buffer Size.
-		volatile static uint32 request[10];
-		request[0] = (uint32)xres; 
-		request[1] = (uint32)yres;
-		request[2] = (uint32)xres; 
-		request[3] = (uint32)yres;
-		request[4] = 0; 
-		request[5] = 24;
-		request[6] = 0; 
-		request[7] = 0;
-		request[8] = 0;	
-		request[9] = 0;
-		
-		// Create a pointer to this thing.
-		volatile static uint32* ptr = &(request[0]);
+		GPU* request = (GPU*)(KERNEL_FB_LOC);
+		request->screen_width = xres;
+		request->screen_height = yres;
+		request->virtual_width = xres;
+		request->virtual_height = yres;
+		request->pitch = 0;
+		request->depth = 24;
+		request->xoffset = 0;
+		request->yoffset = 0;
+		request->framePtr = 0;
+		request->bufferSize = 0;
+		request->valid = false;
 		
 		// Snag the pointer value in uint32 form.
-		uint32 requestAddress = Memory::PHYSICAL_TO_BUS( (uint32)ptr );
+		uint32 requestAddress = Memory::PHYSICAL_TO_BUS( (uint32)request );
 		
 		// And then write a letter to our dearest GPU.
 		MailboxWrite( 1, requestAddress );
 		
 		// And then read the response... Really read it.
-		uint32 response = 1000;
+		uint32 response = 0xFF, explode = 10000;
 		do {
 			response = MailboxCheck( 1 );
-		} while ( response != 0 ) ;
+		} while ( response != 0 && explode-- > 0 ) ;
 		
-		// Check the meaning of the response.
-		if ( request[8] == 0 ) {
-			PiFault( "Error! The framebuffer returned is invalid. Aborting framebuffer acquisition" );
-			return gpu;
+		// Check if we've exploded.
+		if ( explode <= 0 ) {
+			PiFault( "Error! The mailbox didn't return a suitable value in a timely manner." );
+			return request;
 		}
 		
-		if ( request[4] == 0 ) {
+		// Check the meaning of the response.
+		if ( request->framePtr == 0 ) {
+			PiFault( "Error! The framebuffer returned is invalid. Aborting framebuffer acquisition" );
+			return request;
+		}
+		
+		if ( request->pitch == 0 ) {
 			PiFault( "Error! The pitch returned is invalid. Aborting framebuffer acquisition." );
-			return gpu;
+			return request;
 		}
 		
 		// Initialize the success variables.
-		gpu.valid = true;
-		
-		// Copy over the necessary values.
-		gpu.framePtr = Memory::BUS_TO_PHYSICAL( request[8] );
-		gpu.pitch = request[4];
+		request->valid = true;
+		request->framePtr = Memory::BUS_TO_PHYSICAL( request->framePtr );
 		
 		// Return the GPU object.
-		return gpu;
+		return request;
 	}
 
 }

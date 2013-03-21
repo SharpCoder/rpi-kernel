@@ -34,7 +34,7 @@ class Canvas {
 		
 	private:
 		// Properties
-		volatile RaspberryLib::GPU* gpu;
+		RaspberryLib::GPU* gpu;
 		
 		// Methods
 		void SetPixel( uint32 x, uint32 y, Color c);

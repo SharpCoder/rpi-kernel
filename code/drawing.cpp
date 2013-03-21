@@ -69,8 +69,8 @@ void Canvas::Clear( Color color ) {
 	// Iterate over each pixel
 	// defined by the GPU.
 	uint32 x, y;
-	for ( y = 0; y < this->gpu->height; y++ ) {
-		for ( x = 0; x < this->gpu->width; x++ ) {
+	for ( y = 0; y < this->gpu->screen_height; y++ ) {
+		for ( x = 0; x < this->gpu->screen_width; x++ ) {
 			// Set the pixel.
 			this->SetPixel( x, y, color );
 		}
