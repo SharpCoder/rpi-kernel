@@ -7,6 +7,8 @@ include_output=0
 
 # Compiler Toolchain
 compiler=arm-none-eabi
+ldlags="-nostdlib -nostartfiles -O2"
+gppflags="-ffreestanding -nostdlib -fno-builtin -fno-rtti -fno-exceptions -nostartfiles -O2"
 
 # Folders
 boot=../boot
@@ -40,14 +42,18 @@ do
 	esac
 done
 
+# Assemble the metadata file.
+echo "Generating Meta Data..."
+./make-meta.sh
+
 # Compile!
 $compiler-as $code/bootstrap.S -o bootstrap.o
-$compiler-g++ -ffreestanding -nostdlib -c $code/kmain.cpp -o kmain.o
+$compiler-g++ $gppflags -c $code/kmain.cpp -o kmain.o
 
 echo "Linking..."
 
 # Link!
-$compiler-ld -T $code/linker.ld bootstrap.o kmain.o -o kernel.elf
+$compiler-g++ $ldlags -T $code/linker.ld bootstrap.o kmain.o -o kernel.elf
 
 # Generate the IMG file.
 $compiler-objcopy kernel.elf -O binary $boot/kernel.img
