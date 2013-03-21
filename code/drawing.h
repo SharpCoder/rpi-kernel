@@ -41,6 +41,7 @@ class Canvas {
 		// The public methods.
 		void DrawCharacter( char character, Font* font, uint32 x, uint32 y, uint32 color );
 		void DrawString( const char * string, Font* font, uint32 x, uint32 y, uint32 color );
+		void Clear( void );
 		void Clear( Color c );
 		void Clear( uint32 c );
 		Font* GetFonts( void );

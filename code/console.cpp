@@ -21,20 +21,25 @@ void Console::printChar( char c, uint32 color ) {
 		case '\b': 
 			if ( this->charx > 0 ) {
 				this->charx--;
-				return;
 			}
+			return;
 		break;
 		case '\t':
 			if ( this->charx + 4 < MAX_CHAR_PER_LINE ) {
 				this->charx += 4;
-				return;
 			}
+			return;
 		break;
 	}
 	
 	// Check for overflows.
 	if ( this->charx > MAX_CHAR_PER_LINE ) {
 		this->newLine();
+	}
+	
+	if ( this->chary > MAX_LINE ) {
+		this->clear( );
+		return;
 	}
 	
 	// Draw it.
@@ -60,11 +65,6 @@ void Console::clear( void ) {
 }
 
 void Console::kprint( char* string ) {
-	// Iterate over the string.
-	while ( *string != '\0' ) {
-		// Print the character.
-		this->printChar( *(string++), 0xFFFFFF );
-	}
 	// Iterate over the string.
 	while ( *string != '\0' ) {
 		// Print the character.

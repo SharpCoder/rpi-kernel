@@ -108,6 +108,12 @@ void Canvas::Clear( Color color ) {
 	}
 }
 
+void Canvas::Clear( void ) {
+	Color c;
+	c.ToColor( 0x000000 );
+	this->Clear( c );
+}
+
 void Canvas::DrawCharacter( char character, Font* font, uint32 x, uint32 y, uint32 color ) {
 	
 	short i, r;
