@@ -9,6 +9,7 @@
 // *******************************
 #include "raspberrylib.cpp"
 #include "drawing.cpp"
+#include "console.cpp"
 
 using namespace RaspberryLib;
 
@@ -16,23 +17,23 @@ using namespace RaspberryLib;
 // Note: It must be marked as "extern" in order for the linker
 // to see it properly.
 extern "C" void kmain( void ) {
-	
 	// Testbed
 	GPU* gpu = AcquireFrameBuffer( 1024, 768 );
 	
 	// Verify the gpu was successful.
 	if ( !gpu->valid ) return;
 
-	// Create a canvas.
-	Canvas c(gpu);
+	// Setup the screen so we can finally output some stuff!
+	Canvas canvas(gpu);
+	Console console( &canvas );
 	
-	// Clear the screen.
-	c.Clear( 0x00FF00 );
-	
-	// green LED light on.
+	// Write the header data for our kernel.
+	console.kprint("Framebuffer initialized.\n");
+	console.kbase( 137, 2 );
+	// Success stuff.
+	console.kprint("Successfully initialized kernel!\n");
 	SetGPIO( 16, 1 );
 		
 	// Exit
 	return;
-	
 }

@@ -1,4 +1,5 @@
 .global init
+.global kernelfont
 .extern kmain
 
 init:

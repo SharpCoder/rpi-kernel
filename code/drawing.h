@@ -13,7 +13,20 @@
 
 // Include the raspberry library.
 #include "raspberrylib.h"
+#include "lamefont.h"
 
+class Font {
+	public:
+		// Properties
+		char* name;
+		uint32 width, height;
+		char* GetBytes( char c );
+		// Methods
+		Font( void );
+	private:
+		// Methods
+		char* data;
+};
 
 class Color {
 	public:
@@ -26,9 +39,11 @@ class Color {
 class Canvas {
 	public:
 		// The public methods.
-		// void DrawString( char* string );
+		void DrawCharacter( char character, Font* font, uint32 x, uint32 y, uint32 color );
+		void DrawString( const char * string, Font* font, uint32 x, uint32 y, uint32 color );
 		void Clear( Color c );
 		void Clear( uint32 c );
+		Font* GetFonts( void );
 		
 		Canvas( RaspberryLib::GPU* gpuData );
 		
