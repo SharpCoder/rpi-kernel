@@ -13,6 +13,7 @@
 
 // Include the meta data generate at compile time
 #include "meta.h"
+#include "uart.cpp"
 
 using namespace RaspberryLib;
 void outputMetaData( Console* console );
@@ -34,19 +35,29 @@ extern "C" void kmain( void ) {
 	// Output the metadata information.
 	outputMetaData(&console);
 	
-	// Write the header data for our kernel.
-	console.kprint("Framebuffer initialized.\n");
-	console.kbase( 137, 2 );
-	// Success stuff.
-	console.kprint("Successfully initialized kernel!\n");
-	SetGPIO( 16, 1 );
-		
+	// Test our UART functoin
+	_test_uart_one( &console );
+	
+	SetGPIO( 16, 1 );	
 	// Exit
 	return;
 }
 
 void outputMetaData( Console* console ) {
 	meta metadata = getBuildInfo();
+	
+	// Example Output:
+	// =====================================
+	// Welcome to the 0xrpi Kernel!
+	// Version 0.0.100 - Mindflayer
+	// View the code at: https://git@git.com/sharpcoder/rpi-kernel
+	//
+	// v0.0.100 2013-03-21  6:00 PM
+	// Original author: SharpCoder
+	// Contact information: joshua@debuggle.com
+	//
+	//
+	
 	// Write the data to the console.
 	console->kprint( "Welcome to the " );
 	console->kprint( metadata.KERNEL_NAME );
@@ -56,7 +67,7 @@ void outputMetaData( Console* console ) {
 	console->kprint(" - ");
 	console->kprint( metadata.KERNEL_NAME_CODE );
 	console->kprint("\n");
-	console->kprint( "View the Code at: " );
+	console->kprint( "View the code at: " );
 	console->kprint( metadata.KERNEL_REPO );
 	console->kprint("\n\n");
 	console->kprint( "v" );
@@ -64,9 +75,9 @@ void outputMetaData( Console* console ) {
 	console->kprint( " " );
 	console->kprint( metadata.BUILD_DATE );
 	console->kprint( "\n" );
-	console->kprint( "Original Author: " );
+	console->kprint( "Original author: " );
 	console->kprint( metadata.AUTHOR );
-	console->kprint( "\nContact Information: " );
+	console->kprint( "\nContact information: " );
 	console->kprint( metadata.EMAIL );
 	console->kprint( "\n\n" );
 }

@@ -86,6 +86,7 @@ namespace RaspberryLib {
 	// Common RPI interaction methods.
 	uint32 CheckCounter( void );
 	void SetGPIO( uint32 pin, uint32 value );
+	void WaitQuick( uint32 time );
 	void Wait( uint32 time );
 	void Blink( uint32 count, uint32 time );
 	void PiFault( const char* msg );

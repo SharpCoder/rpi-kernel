@@ -66,6 +66,15 @@ namespace RaspberryLib {
 		return GET32( ARM_COUNTER_ADDR );
 	}
 	
+	
+	// This method will wait 'time' in 'ticks'
+	// (or cycles) instead of nanoseconds.
+	void WaitQuick( uint32 time ) {
+		uint32 ticks = CheckCounter();
+		uint32 target = ticks + time;
+		while(CheckCounter() < target ) { /* Do nothing... */ }
+	}
+	
 	void Wait( uint32 time ) {
 		// Read the current time from
 		uint32 ticks = CheckCounter();
