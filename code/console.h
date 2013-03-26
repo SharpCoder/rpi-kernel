@@ -13,8 +13,8 @@ class Console {
 		
 		// Standard printf functions.
 		void kprint( char* string );
-		void kprint( const char* string );		
-		void kbase( uint32 value, uint32 base );
+		void kprint( const char* string );
+		void kbase( int value, int base );
 		
 		// Clearscreen function.
 		void clear( void );

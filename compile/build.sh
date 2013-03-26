@@ -43,8 +43,12 @@ do
 done
 
 # Assemble the metadata file.
+
 echo "Generating Meta Data..."
-./make-meta.sh
+if [ ! $compile_mode -eq 1 ];
+then
+	./make-meta.sh
+fi
 
 # Compile!
 $compiler-as $code/bootstrap.S -o bootstrap.o

@@ -13,6 +13,7 @@
 
 // Include the meta data generate at compile time
 #include "meta.h"
+#include "memory.h"
 #include "uart.cpp"
 
 using namespace RaspberryLib;
@@ -22,11 +23,15 @@ void outputMetaData( Console* console );
 // Note: It must be marked as "extern" in order for the linker
 // to see it properly.
 extern "C" void kmain( void ) {
-	// Testbed
+	
+	// Initialize the GPU module.
 	GPU* gpu = AcquireFrameBuffer( 1024, 768 );
 	
 	// Verify the gpu was successful.
 	if ( !gpu->valid ) return;
+
+	// Initialize memory management.
+	init_memory();
 
 	// Setup the screen so we can finally output some stuff!
 	Canvas canvas(gpu);
@@ -35,10 +40,11 @@ extern "C" void kmain( void ) {
 	// Output the metadata information.
 	outputMetaData(&console);
 	
-	// Test our UART functoin
-	_test_uart_one( &console );
+	// Test out our math function
+	console.kbase( 190, 16 );
 	
 	SetGPIO( 16, 1 );	
+	
 	// Exit
 	return;
 }

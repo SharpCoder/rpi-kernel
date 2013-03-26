@@ -72,39 +72,41 @@ void Console::kprint( char* string ) {
 	}
 }
 
-void Console::kbase( uint32 value, uint32 base ) {
-	// A google should be enough space...
-	uint32 result[100];
-	uint32 temp, i;
+void Console::kbase( int number, int base ) {
+
+	// Validate the base.
+	if ( base < 5 || base > 26 ) {
+		return;
+	}
+
+	// Determine some info about the number.
+	int size = 0, count = 0, resNum = 0, remainder = 0, index = 0;
+	size = getNumberLength( number, base, &count );
 	
-	// Put zeros in there.
-	for ( temp = 0; temp < 100; temp++ )
-		result[temp] = 0;
+	// Size = 10 * count
+	// Count = how many value places.
+	// char* result = (char*)kalloc( 4 * count );
 	
-	// Reset temp.
-	temp = 0;
+	// Create an array of values to easily convert
+	// a given number into a character.
+	char symbols[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P' };
 	
-	// Do the maths.
-	while(true) {
-		uint32 data = 0, remainder = 0;
-		divide( value, base, &data, &remainder );
+	// Derrive the result.
+	while ( size > 0 ) {
+		// resNum = number / size		
+		divide( number, size, &resNum, &remainder );
 		
-		// Store the remainder.
-		result[temp++] = remainder;
+		// Store the result.
+		this->printChar( symbols[resNum], 0xFF0000 );
+		// *(result + index++) =  symbols[resNum];
 		
-		// If the new value is not zero, then continue again.
-		if ( data == 0 ) break;
-		// Validate
-		if ( temp >= 99 ) break;
+		// Subtract
+		number = number - ( resNum * size );
+		
+		// Reduce size.
+		divide( size, base, &size, &remainder );
 	}
 	
-	// Reverse the data and then write the output.
-	for ( i = temp; i > 0; i-- ) {
-		if ( result[i] == 0 )
-			this->printChar( '0', 0xFFFFFF );
-		else
-			this->printChar( '1', 0xFFFFFF );
-	}
 }
 
 // Constructor.
