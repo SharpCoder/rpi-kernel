@@ -14,7 +14,6 @@
 // Include the meta data generate at compile time
 #include "meta.h"
 #include "memory.h"
-#include "uart.cpp"
 
 using namespace RaspberryLib;
 void outputMetaData( Console* console );
@@ -37,12 +36,15 @@ extern "C" void kmain( void ) {
 	Canvas canvas(gpu);
 	Console console( &canvas );
 	
+	// Test out our math function
+	//console.kbase( 190, 16 );
+	canvas.Clear( 0x0A0C25 );	
+	 
 	// Output the metadata information.
 	outputMetaData(&console);
 	
-	// Test out our math function
-	console.kbase( 190, 16 );
-	
+	// Test out the interrupt system.
+	// trigger_interrupt();
 	SetGPIO( 16, 1 );	
 	
 	// Exit

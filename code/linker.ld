@@ -1,15 +1,15 @@
 ENTRY(init)
 SECTIONS
 {	
-	OVERLAY 0x8000 : AT ( 0x8000 )
-	{
-		text
-		{
-			*(.text)
-			*(.rodata)
-			*(.data)
-		}
-		
-
+	vectortable 0x0000 : {
+		irq.o;
+	},
+	kernel 0x8000 : {
+		*(.text)		
+		*(.bss);
+		*(.data);
+		*(.rodata);
 	}
+	
+	
 }
