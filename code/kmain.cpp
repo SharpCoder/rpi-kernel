@@ -7,6 +7,7 @@
 //
 // LICENSE:		Provided "AS IS". USE AT YOUR OWN RISK.
 // *******************************
+#include "irq.cpp"
 #include "raspberrylib.cpp"
 #include "drawing.cpp"
 #include "console.cpp"

@@ -53,13 +53,12 @@ fi
 # Compile!
 $compiler-as $code/bootstrap.S -o bootstrap.o
 $compiler-as $code/irq.asm -o irq.o
-$compiler-gcc $gppflags -c $code/uart.cpp -o cirq.o
 $compiler-g++ $gppflags -c $code/kmain.cpp -o kmain.o
 
 echo "Linking..."
 
 # Link!
-$compiler-g++ $ldlags -T $code/linker.ld bootstrap.o cirq.o kmain.o -o kernel.elf
+$compiler-g++ $ldlags -T $code/linker.ld bootstrap.o kmain.o -o kernel.elf
 
 # Generate the IMG file.
 $compiler-objcopy kernel.elf -O binary $boot/kernel.img
@@ -71,7 +70,6 @@ then
 	echo "Generating debug files..."
 	$compiler-objdump -D bootstrap.o > $debug/bootstrap.o.asm
 	$compiler-objdump -D irq.o > $debug/irq.o.asm
-	$compiler-objdump -D cirq.o > $debug/cirq.o.asm
 	$compiler-objdump -D kmain.o > $debug/kmain.o.asm
 	$compiler-objdump -D kernel.elf > $debug/kern.elf.asm
 fi
