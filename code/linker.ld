@@ -1,15 +1,17 @@
 ENTRY(init)
+MEMORY
+{
+	ram : ORIGIN = 0x8000, LENGTH = 0x5000,
+	ivt : ORIGIN = 0xC100, LENGTH = 0x1000
+}
+
 SECTIONS
-{	
-	vectortable 0x0000 : {
+{
+	.text : {
+		bootstrap.o;
+		kmain.o;
+	} > ram,
+	.ivt : {
 		irq.o;
-	},
-	kernel 0x8000 : {
-		*(.text)		
-		*(.bss);
-		*(.data);
-		*(.rodata);
-	}
-	
-	
+	} > ivt
 }

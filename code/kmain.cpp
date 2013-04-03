@@ -9,84 +9,72 @@
 // *******************************
 #include "irq.cpp"
 #include "raspberrylib.cpp"
-#include "drawing.cpp"
+#include "gpu2d.cpp"
 #include "console.cpp"
 
 // Include the meta data generate at compile time
+// #include "meta.h"
+#include "mem.h"
+#include "math.h"
 #include "meta.h"
-#include "memory.h"
 
 using namespace RaspberryLib;
-void outputMetaData( Console* console );
+
+// Define any functions.
+void print_header( Console* console );
 
 // Define the entry point for our application.
 // Note: It must be marked as "extern" in order for the linker
 // to see it properly.
 extern "C" void kmain( void ) {
+		
+	// Initialize memory management first.
+	init_page_table();
 	
-	// Initialize the GPU module.
-	GPU* gpu = AcquireFrameBuffer( 1024, 768 );
+	// Create a canvas.
+	gpu2dCanvas canvas(false);
 	
-	// Verify the gpu was successful.
-	if ( !gpu->valid ) return;
-
-	// Initialize memory management.
-	init_memory();
-
-	// Setup the screen so we can finally output some stuff!
-	Canvas canvas(gpu);
-	Console console( &canvas );
+	// Create a console.
+	Console console(&canvas);
 	
-	// Test out our math function
-	//console.kbase( 190, 16 );
-	canvas.Clear( 0x0A0C25 );	
-	 
-	// Output the metadata information.
-	outputMetaData(&console);
+	// Draw to the console.
+	print_header( &console );
 	
-	// Test out the interrupt system.
-	// trigger_interrupt();
+	
+	// Get the (suspected) interrupt table values.
+	volatile uint32 memdata = 0xC120;
+	volatile uint32 memivt = 0x0000;
+	uint32 step = 4, length = 8, i =0;
+	
+	for( ; i < length; i++ ) {
+		volatile uint32 start = (memdata);// + ( i * step ) );
+		volatile uint32 end = (memivt + ( i * step ) );		
+		RaspberryLib::PUT32( end, start );
+	}
+	console.kout("Interrupt vector table INITIALIZED");
+	
+	// Turn on the green light to signify the end
+	// of our initial kernel code.	
+	irq_enable();
+	console.kout("Interrupt engine ACTIVATED");
+	
+	irq_test();
+	console.kout("Interrupt test code INVOKED");
+	
 	SetGPIO( 16, 1 );	
 	
-	// Exit
+	console.kprint("\n\nKernel shutting down...");
 	return;
 }
 
-void outputMetaData( Console* console ) {
-	meta metadata = getBuildInfo();
+void print_header( Console* console ) {
 	
-	// Example Output:
-	// =====================================
-	// Welcome to the 0xrpi Kernel!
-	// Version 0.0.100 - Mindflayer
-	// View the code at: https://git@git.com/sharpcoder/rpi-kernel
-	//
-	// v0.0.100 2013-03-21  6:00 PM
-	// Original author: SharpCoder
-	// Contact information: joshua@debuggle.com
-	//
-	//
+	meta info = getBuildInfo();
 	
-	// Write the data to the console.
-	console->kprint( "Welcome to the " );
-	console->kprint( metadata.KERNEL_NAME );
-	console->kprint("!\n");
-	console->kprint("Version: ");
-	console->kprint( metadata.VERSION );
-	console->kprint(" - ");
-	console->kprint( metadata.KERNEL_NAME_CODE );
-	console->kprint("\n");
-	console->kprint( "View the code at: " );
-	console->kprint( metadata.KERNEL_REPO );
-	console->kprint("\n\n");
-	console->kprint( "v" );
-	console->kprint( metadata.VERSION );
-	console->kprint( " " );
-	console->kprint( metadata.BUILD_DATE );
-	console->kprint( "\n" );
-	console->kprint( "Original author: " );
-	console->kprint( metadata.AUTHOR );
-	console->kprint( "\nContact information: " );
-	console->kprint( metadata.EMAIL );
-	console->kprint( "\n\n" );
+	console->kprint("Welcome to Mindflayer, a custom raspberry pi kernel written in C++\n");
+	console->kprint("Build: ");
+	console->kprint( info.VERSION );
+	console->kprint("\n\n\n");
+	
+
 }

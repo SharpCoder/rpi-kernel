@@ -5,15 +5,6 @@ OUTPUTDIR=../
 OUTPUTSIZEmb=34
 BOOTDIR=../boot
 
-RED="\033[33m"
-REGULAR="\033[0m"
-
-if [ $OUTPUTSIZEmb -lt 34 ]; then
-	echo "$RED ERROR: Invalid output Size specified."
-	echo " Failed to build$REGULAR"
-	return
-fi
-
 # Do some math based on the output size.
 OUTPUTSIZEb=$(( $OUTPUTSIZEmb * 1024 * 1024 ))
 OUTPUTCYLINDERS=$(( $OUTPUTSIZEb / 255 / 63 / 512 ))
@@ -42,15 +33,17 @@ EOF
 chown joshcole $OUTPUTDIR$OUTPUT.img
 chown joshcole $BOOTDIR/*
 
+echo "Mounting IMG..."
 losetup -o $((63*512)) /dev/loop1 $OUTPUTDIR$OUTPUT.img
 mkfs.msdos -F 32 /dev/loop1
 losetup -d /dev/loop1
 mount -o loop,offset=$((63*512)) $OUTPUTDIR$OUTPUT.img /media/sdcard
+echo "Copying Files..."
 cp $BOOTDIR/* /media/sdcard
 umount /media/sdcard
 
 # Copy to the D drive.
-cp $OUTPUTDIR$OUTPUT.img /media/sf_D_DRIVE/0xOS/$OUTPUT.img
+cp $OUTPUTDIR$OUTPUT.img /media/sf_D_DRIVE/0pi-kernel/$OUTPUT.img
 
 echo ""
 echo "Finished successfully!"

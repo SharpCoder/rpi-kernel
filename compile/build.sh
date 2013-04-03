@@ -50,25 +50,30 @@ then
 	./make-meta.sh
 fi
 
+# Remove the old kernel stuff.
+rm -r $boot/kernel.img -f
+
 # Compile!
-$compiler-as $code/bootstrap.S -o bootstrap.o
 $compiler-as $code/irq.asm -o irq.o
+$compiler-as $code/bootstrap.S -o bootstrap.o
 $compiler-g++ $gppflags -c $code/kmain.cpp -o kmain.o
 
 echo "Linking..."
 
 # Link!
-$compiler-g++ $ldlags -T $code/linker.ld bootstrap.o kmain.o -o kernel.elf
+# $compiler-g++ $ldlags -T $code/linker.ld bootstrap.o font.o kmain.o -o kernel.elf
+$compiler-g++ $ldlags -T $code/linker.ld bootstrap.o irq.o kmain.o -o kernel.elf
 
 # Generate the IMG file.
 $compiler-objcopy kernel.elf -O binary $boot/kernel.img
-
 
 # Clean Up
 if [ $include_output -eq 1 ];
 then
 	echo "Generating debug files..."
 	$compiler-objdump -D bootstrap.o > $debug/bootstrap.o.asm
+	$compiler-objcopy bootstrap.o -O srec $debug/bootstrap.srec
+	hexdump -C kernel.elf > $debug/kernel.hex
 	$compiler-objdump -D irq.o > $debug/irq.o.asm
 	$compiler-objdump -D kmain.o > $debug/kmain.o.asm
 	$compiler-objdump -D kernel.elf > $debug/kern.elf.asm
@@ -78,10 +83,18 @@ echo "Cleaning up..."
 rm ./*.elf
 rm ./*.o
 
+# Check for success.
+if [ ! -e "$boot/kernel.img" ]
+then
+	echo " . . . "
+	echo "BUILD FAILED!";
+	return 1
+fi
+
 if [ $compile_mode -eq 1 ];
 then
 	echo "Build completed!"
-	return
+	return 0
 fi
 
 # Footer

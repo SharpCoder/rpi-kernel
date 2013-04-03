@@ -1,10 +1,12 @@
 .global init
-.global kernelfont
 .extern kmain
 
 init:
 @; Move the stack pointer.
-	mov sp, #0x100000
+	mov sp, #0x10000
+	
+@; Initialize interrupts.
+	cpsie i
 	
 @; Invoke our main C++ entrypoint.
 	bl kmain
