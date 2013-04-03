@@ -54,14 +54,13 @@ fi
 rm -r $boot/kernel.img -f
 
 # Compile!
-$compiler-as $code/irq.asm -o irq.o
+$compiler-as $code/irq.S -o irq.o
 $compiler-as $code/bootstrap.S -o bootstrap.o
 $compiler-g++ $gppflags -c $code/kmain.cpp -o kmain.o
 
 echo "Linking..."
 
 # Link!
-# $compiler-g++ $ldlags -T $code/linker.ld bootstrap.o font.o kmain.o -o kernel.elf
 $compiler-g++ $ldlags -T $code/linker.ld bootstrap.o irq.o kmain.o -o kernel.elf
 
 # Generate the IMG file.

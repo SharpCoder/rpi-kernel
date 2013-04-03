@@ -27,39 +27,44 @@ void print_header( Console* console );
 // Note: It must be marked as "extern" in order for the linker
 // to see it properly.
 extern "C" void kmain( void ) {
-		
-	// Initialize memory management first.
-	init_page_table();
-	
+
 	// Create a canvas.
 	gpu2dCanvas canvas(false);
 	
 	// Create a console.
 	Console console(&canvas);
 	
+	// Wire up the interrupts.
+	irq_console = &console;
+	use_irq_console = true;
+	
 	// Draw to the console.
 	print_header( &console );
-	
-	
-	// Get the (suspected) interrupt table values.
-	volatile uint32 memdata = 0xC120;
-	volatile uint32 memivt = 0x0000;
-	uint32 step = 4, length = 8, i =0;
-	
-	for( ; i < length; i++ ) {
-		volatile uint32 start = (memdata);// + ( i * step ) );
-		volatile uint32 end = (memivt + ( i * step ) );		
-		RaspberryLib::PUT32( end, start );
+		
+	console.kprint("Waiting: ");
+	int index;
+	for(index = 18; index > 0; index-- ) {
+		console.kprint(".");
+		Wait( 300 );
 	}
-	console.kout("Interrupt vector table INITIALIZED");
-	
+	console.kprint("\n[STARTING]\n\n");
+
+	// Initialize memory management first.
+	init_page_table();
+	console.kout("Initialized page table");
+		
 	// Turn on the green light to signify the end
 	// of our initial kernel code.	
 	irq_enable();
-	console.kout("Interrupt engine ACTIVATED");
+	Wait(500);
+	console.kout("Interrupt vectors ENABLED");
+	console.kprint("About to throw an SWI exception...\n");
 	
+	Wait( 5000 );
 	irq_test();
-	console.kout("Interrupt test code INVOKED");
+	
+	Wait(500);
+	console.kout("SWI Exception Thrown");
 	
 	SetGPIO( 16, 1 );	
 	

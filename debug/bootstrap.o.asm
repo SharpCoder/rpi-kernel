@@ -5,7 +5,7 @@ bootstrap.o:     file format elf32-littlearm
 Disassembly of section .text:
 
 00000000 <init>:
-   0:	e3a0d601 	mov	sp, #1048576	; 0x100000
+   0:	e3a0d702 	mov	sp, #524288	; 0x80000
    4:	ebfffffe 	bl	0 <kmain>
    8:	eaffffff 	b	c <hang$>
 

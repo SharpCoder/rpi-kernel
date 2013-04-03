@@ -230,3 +230,12 @@ void gpu2dCanvas::DrawCharacter( int x, int y, char c, uint32 color ) {
 		}
 	}	
 }
+
+void gpu2dCanvas::ClearCharacter( int x, int y ) {
+	short num1 = 0, num2 = 0;
+	for( num1; num1 < 16; num1++ ) {
+		for( num2; num2 < 8; num2++ ) {
+			setPixel( x + num2, y + num1, 0x000000 );
+		}
+	}
+}

@@ -21,6 +21,11 @@ void Console::printChar( char c, uint32 color ) {
 		case '\b': 
 			if ( this->charx > 0 ) {
 				this->charx--;
+				// Erase the character.
+				this->canvas->ClearCharacter( this->charx * 8 + this->padding,
+											  this->chary * 16 + this->padding );
+				// Refresh
+				this->canvas->Draw();
 			}
 			return;
 		break;
@@ -192,7 +197,7 @@ Console::Console( gpu2dCanvas* surface ) {
 	// Setup the variables.
 	this->charx = 0;
 	this->chary = 0;
-	this->padding = 0;
+	this->padding = 10;
 	this->canvas = surface;
 	
 	// Clear the screen.

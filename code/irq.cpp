@@ -1,19 +1,16 @@
 #include "raspberrylib.h" 
+#include "console.h"
 
-// TODO: Delegate this to the raspberry lib.
-// but I want to test it in a clean environment first.
-unsigned int ioaddr( unsigned int addr, unsigned int base ) {
-	return (0x20000000) + base + addr;
-}
+Console* irq_console;
+bool use_irq_console;
 
 extern "C" void irq_handler( void ) {
 	
-	// Reload the timer.
-	*( (volatile uint32*)(0x2000b000 + 0x40c) ) = 0x01;
-	
+	if ( use_irq_console )
+		irq_console->kout("INTERRUPT");
+		
 	// Blink once to show we've been here.
-	RaspberryLib::Blink( 10, 50 );
-	RaspberryLib::Wait( 1000 );
+	RaspberryLib::Wait( 100 );
 	return;
 }
 
@@ -35,14 +32,6 @@ bool irq_enable( void ) {
 
 void irq_test( void ) {
 	
-	// Enable the timer ergister.
-	volatile uint32* address = (volatile uint32*)( 0x2000b000 );
-	
-	// Load the timer.
-	*(address + 0x400 ) = 0x0000FFFF;
-	
-	// Invoke the timer control bits.
-	*(address + 0x408 ) = 0x144;
-	
-	
+	asm volatile( "SWI #0x0000FF" );
+		
 }

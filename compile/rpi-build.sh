@@ -46,4 +46,4 @@ umount /media/sdcard
 cp $OUTPUTDIR$OUTPUT.img /media/sf_D_DRIVE/0pi-kernel/$OUTPUT.img
 
 echo ""
-echo "Finished successfully!"
+echo "Finished BUILDING IMAGE"
