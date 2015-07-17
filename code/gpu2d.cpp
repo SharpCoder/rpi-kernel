@@ -1,7 +1,7 @@
 // *******************************
 // FILE: 		gpu2d.cpp
 // AUTHOR:		SharpCoder
-// DATE:		2012-03-28
+// DATE:		2013-03-28
 // ABOUT:		This is the 2D graphics engine (re written) for my
 //				raspberry pi kernel. I'm trying to implement some
 //				nicer functions and a backbuffer to make everything
@@ -29,8 +29,8 @@ gpu2dCanvas::gpu2dCanvas( bool useDoubleBuffer ) {
 	this->fbInfo = (FB_Info*)KERNEL_FB_LOC; 
 	
 	// Setup some information about the canvas.
-	this->fbInfo->screen_width = 1024;
-	this->fbInfo->screen_height = 768;
+	this->fbInfo->screen_width = 800;
+	this->fbInfo->screen_height = 600;
 	this->fbInfo->virtual_width = this->fbInfo->screen_width;
 	
 	// If we're using double buffer...

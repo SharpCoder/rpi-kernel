@@ -64,6 +64,10 @@ void Console::kprint( const char* string ) {
 	this->kprint( (char*) string );
 }
 
+void Console::kprint( char c ) {
+	this->printChar( c, 0xFFFFFF );
+}
+
 // Clearscreen function.
 void Console::clear( void ) {
 	this->charx = 0;

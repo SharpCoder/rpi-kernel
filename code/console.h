@@ -2,7 +2,8 @@
 #define __CONSOLE_H_
 
 #include "common.h"
-#include "math.h"
+#include "./libs/mem.h"
+#include "./libs/math.h"
 #include "raspberrylib.h"
 #include "gpu2d.h"
 
@@ -20,6 +21,7 @@ class Console {
 		void kprintf( const char* string, T value );
 		
 		// Standard printf functions.
+		void kprint( char c );
 		void kprint( char* string );
 		void kprint( const char* string );
 		void kbase( long value, long base, long size );

@@ -1,7 +1,8 @@
 .global init_entry_point
 
+.extern kmain
 .extern init
-.extern irq_handler
+.extern interrupt_vector
 
 ;@ This is the actual entr point to the application.
 ;@ I need to look into how to do this another way, but it seems like
@@ -44,11 +45,8 @@ init_entry_point:
 ;@ Next up is a trick to basically force the compiler
 ;@ to store the branch command as a value
 ;@ into the respective register.
-reset_handler:
-	.word reset
-
-basic_handler:
-	.word arm_interrupt_handler
+reset_handler: .word reset
+basic_handler: .word arm_interrupt_handler
 
 ;@ Then this is our "reset" function
 ;@ which is what will actually get automatically
@@ -66,25 +64,51 @@ reset:
 	ldmia r0!,{r2,r3,r4,r5,r6,r7,r8,r9}
 	stmia r1!,{r2,r3,r4,r5,r6,r7,r8,r9}
 	
+	;@ (PSR_IRQ_MODE|PSR_FIQ_DIS|PSR_IRQ_DIS)
+    mov r0,#0xD2
+    msr cpsr_c,r0
+    mov sp,#0x8000
+
+    ;@ (PSR_FIQ_MODE|PSR_FIQ_DIS|PSR_IRQ_DIS)
+    mov r0,#0xD1
+    msr cpsr_c,r0
+    mov sp,#0x4000
+
+    ;@ (PSR_SVC_MODE|PSR_FIQ_DIS|PSR_IRQ_DIS)
+    mov r0,#0xD3
+    msr cpsr_c,r0
+    mov sp,#0x800000
+	
 	;@ And then call the bootstrapper init function.
 	;@ NOTE: I delegated these two assembly files because I don't
 	;@ want to marry my kernel to the ivt setup code.
-	b init
-	bx lr
-	
+	bl kmain
+	b hang
 hang:
 	b hang
-	
+
+.globl enable_irq
+enable_irq:
+    mrs r0,cpsr
+    bic r0,r0,#0x80
+    msr cpsr_c,r0
+    bx lr
+
 ;@ And here is the actual interrupt handler code.
 arm_interrupt_handler:
-
-	;@ Store the return link.
-	sub r14, r14, #4
-	stmfd sp!, {r0,r1,r2,r3,r4,r14}
+	
+    ;@ Store the return link.
+    stm sp, {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12}
+	
+	;@ Setup the arguments for our method.
+	mov r0, lr
+	mov r1, sp
 	
 	;@ Invoke our C++ irq handler.
-	bl irq_handler
+	bl interrupt_vector
 	
+	;@ subs pc, r14, #4
+	b hang
 	;@ Restore to the original caller.
-	ldmfd sp!, {r0,r1,r2,r3,r4,pc}^
-	bx lr
+	;@ ldmfd sp!, {r0,r1,r2,r3,r4,pc}^
+	;@ bx lr

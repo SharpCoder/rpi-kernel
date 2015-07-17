@@ -25,11 +25,11 @@ static meta getBuildInfo() {
 	meta properties;
 	properties.AUTHOR="SharpCoder";
 	properties.EMAIL="Josuha@debuggle.com";
-	properties.KERNEL_NAME="0xrpi Kernel";
+	properties.KERNEL_NAME="Mindflayer";
 	properties.KERNEL_NAME_CODE="Mindflayer";
 	properties.KERNEL_REPO="https://github.com/SharpCoder/rpi-kernel";
-	properties.BUILD_DATE="2013-04-02  11:48:47 PM";
-	properties.VERSION="0.0.623";
+	properties.BUILD_DATE="2015-07-17  02:04:55 PM";
+	properties.VERSION="0.0.723";
 	properties.LOGO_TEXT="";
 	properties.LOGO_WIDTH= 30;
 	properties.LOGO_HEIGHT= 50;

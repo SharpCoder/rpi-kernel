@@ -11,65 +11,91 @@
 #include "raspberrylib.cpp"
 #include "gpu2d.cpp"
 #include "console.cpp"
+#include "keyboard.h"
 
 // Include the meta data generate at compile time
-// #include "meta.h"
-#include "mem.h"
-#include "math.h"
+#include "./libs/mem.h"
+#include "./libs/math.h"
+#include "./libs/string.h"
 #include "meta.h"
 
 using namespace RaspberryLib;
 
+Console* console;
+
 // Define any functions.
 void print_header( Console* console );
+void printf( const char* c);
+void assert( const char* c);
+extern "C" void enable_irq();
+
+void run1() {
+	while(true) {
+		// NOTE: locking mechanism has issues...
+		lock();
+		// NOTE: printf() is not thread safe.
+		//printf("Hello from thread 1\n");
+		unlock();
+		Wait(1000);
+	}
+}
+
+void run2() {
+	while(true) {
+		// NOTE: locking mechanism has issues...
+		lock();
+		// NOTE: printf() is not thread safe.
+		//printf("Hello from thread 2\n");
+		unlock();
+		Wait(1000);
+	}
+}
 
 // Define the entry point for our application.
 // Note: It must be marked as "extern" in order for the linker
 // to see it properly.
 extern "C" void kmain( void ) {
-
+	
+	// Initialize the irq
+	irq_init();
+	
+	// Initialize at zero.
+	sbrk(0);
+	
 	// Create a canvas.
 	gpu2dCanvas canvas(false);
 	
 	// Create a console.
-	Console console(&canvas);
+	console = new Console(&canvas);
 	
-	// Wire up the interrupts.
-	irq_console = &console;
-	use_irq_console = true;
+	// setup the IRQ console
+	irqConsole = console;
 	
 	// Draw to the console.
-	print_header( &console );
-		
-	console.kprint("Waiting: ");
-	int index;
-	for(index = 18; index > 0; index-- ) {
-		console.kprint(".");
-		Wait( 300 );
-	}
-	console.kprint("\n[STARTING]\n\n");
-
-	// Initialize memory management first.
-	init_page_table();
-	console.kout("Initialized page table");
-		
-	// Turn on the green light to signify the end
-	// of our initial kernel code.	
-	irq_enable();
-	Wait(500);
-	console.kout("Interrupt vectors ENABLED");
-	console.kprint("About to throw an SWI exception...\n");
+	print_header( console );
 	
-	Wait( 5000 );
-	irq_test();
+	//UsbInitialise();
+	//assert("Keyboard Initialized");
 	
-	Wait(500);
-	console.kout("SWI Exception Thrown");
+	//  Queue up a few jobs.
+	fork(&run1);
+	fork(&run2);
 	
-	SetGPIO( 16, 1 );	
+	// Setup IRQ
+	assert("IRQ Enabled");
+	enable_irq();
 	
-	console.kprint("\n\nKernel shutting down...");
+	// Hang forever.
+	while(1) { }
 	return;
+}
+
+void assert(const char* val) {
+	console->kout(val);
+}
+
+void printf(const char* val) {
+	console->kprint(val);
 }
 
 void print_header( Console* console ) {

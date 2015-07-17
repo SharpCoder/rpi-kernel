@@ -15,7 +15,7 @@
 // Include the common library.
 #include "common.h"
 #include "raspberrylib.h"
-#include "mem.h"
+#include "./libs/mem.h"
 
 class FB_Info {
 public:
